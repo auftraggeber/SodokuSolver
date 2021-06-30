@@ -12,6 +12,7 @@ public class Sodoku {
     private Group[] lineGroups, columnGroups, boxGroups;
     private List<Field> fieldList = new LinkedList<>(); // zur möglichen Darstellung notwendig
     private Stack<Field> lastFields = new Stack<>(), lastMultipleFields = new Stack<>();
+    private int tries = 0;
 
     /**
      * Erstellt ein neues Sodoku-Rätsel, welches gelöst werden muss.
@@ -68,6 +69,9 @@ public class Sodoku {
        // treeSet.addListener(listener);
 
         solve(treeSet.first());
+
+
+        System.out.println("FERTIG (" +tries + " Versuche)");
 
     }
 
@@ -185,6 +189,7 @@ public class Sodoku {
         //System.out.print("Möglichkeiten für Feld " + field.getID() + ": " + field.getPossible().size() + " \tLetzter Versuch: " + field.getLastTriedIndex() + "\n");
 
         show();
+        ++tries;
 
         if (field.getPossible().size() >= 1 && !field.isFixed()) {
             field.setFixedValue(field.getPossible().get(field.incrementLastTriedIndex()));
@@ -233,7 +238,6 @@ public class Sodoku {
         }
         else if (field.getPossible().size() <= 0)
             throw new IllegalStateException("Field #" + field.getID() + " has 0 possibilities.");
-        // TODO: keine eindeutige Möglichkeit
     }
 
     /**

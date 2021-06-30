@@ -43,8 +43,9 @@ public class Field extends UpdateAble implements Comparable<Field> {
         for (int i : ints)
             possibilities.remove(new Integer(i));
 
-        if (bcFixed) {for (int i : ints)
-            notPossible.add(i);
+        if (bcFixed) {
+            for (int i : ints)
+                notPossible.add(i);
         }
 
         updated();
