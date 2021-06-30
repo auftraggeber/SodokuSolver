@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
-public class Sodoku {
+public class Sudoku {
 
     private int size;
     private UpdateListener<Field> listener;
@@ -20,7 +20,7 @@ public class Sodoku {
      * @param fields Die Inhalte der Felder (wenn kein Inhalt, dann -1).
      * @throws IllegalArgumentException Wirft Exception, wenn falsches Format angegeben wurde.
      */
-    public Sodoku(int size, int[][] fields) throws IllegalArgumentException {
+    public Sudoku(int size, int[][] fields) throws IllegalArgumentException {
 
         if (fields.length > 0 && fields[0].length == fields.length && fields.length == size*size) {
             this.size = size;
