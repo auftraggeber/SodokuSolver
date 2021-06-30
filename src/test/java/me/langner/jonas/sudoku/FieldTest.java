@@ -1,8 +1,6 @@
-package me.langner.jonas.sodoku;
+package me.langner.jonas.sudoku;
 
 import org.junit.jupiter.api.Test;
-
-import java.util.TreeSet;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -36,7 +34,7 @@ class FieldTest {
         assertEquals(field4, set1.last());
         assertEquals(4, set1.size());
 
-        field3.removePossibility(4);
+        field3.removePossibility(false,4);
 
         assertEquals(field3, set1.first());
         assertEquals(4, set1.size());

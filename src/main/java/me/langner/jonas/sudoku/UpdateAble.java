@@ -1,4 +1,6 @@
-package me.langner.jonas.sodoku;
+package me.langner.jonas.sudoku;
+
+import java.util.Collections;
 
 public abstract class UpdateAble {
 
@@ -8,9 +10,14 @@ public abstract class UpdateAble {
         this.set = tree;
     }
 
-    public void beforeUpdate() {
-        if (set != null)
+    public void removeFromTree() {
+        if (set != null) {
             set.remove(this);
+        }
+    }
+
+    public void beforeUpdate() {
+        removeFromTree();
     }
 
     public void updated() {
@@ -18,4 +25,7 @@ public abstract class UpdateAble {
             set.update(this);
     }
 
+    public UpdateAbleTreeSet getSet() {
+        return set;
+    }
 }

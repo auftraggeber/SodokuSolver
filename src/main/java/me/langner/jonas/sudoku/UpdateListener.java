@@ -1,4 +1,4 @@
-package me.langner.jonas.sodoku;
+package me.langner.jonas.sudoku;
 
 public interface UpdateListener<T> {
 

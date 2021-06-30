@@ -1,6 +1,5 @@
-package me.langner.jonas.sodoku;
+package me.langner.jonas.sudoku;
 
-import javax.swing.event.ChangeListener;
 import java.util.*;
 
 public class UpdateAbleTreeSet<T extends UpdateAble> extends TreeSet<T> {
@@ -20,6 +19,10 @@ public class UpdateAbleTreeSet<T extends UpdateAble> extends TreeSet<T> {
 
     public UpdateAbleTreeSet(SortedSet<T> s) {
         super(s);
+    }
+
+    public void addListener(UpdateListener<T> listener) {
+        listeners.add(listener);
     }
 
     public void update(T t) {
