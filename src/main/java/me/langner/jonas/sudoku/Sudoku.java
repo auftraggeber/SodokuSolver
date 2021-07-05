@@ -4,6 +4,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
+/**
+ * Behandelt die Lösung von Sudokus.
+ * @author Jonas Langner
+ * @version 1.0
+ * @since 1.0
+ */
 public class Sudoku {
 
     private int size;
@@ -13,6 +19,7 @@ public class Sudoku {
     private List<Field> fieldList = new LinkedList<>(); // zur möglichen Darstellung notwendig
     private Stack<Field> lastFields = new Stack<>(), lastMultipleFields = new Stack<>();
     private int tries = 0;
+    private long startTime, endTime;
 
     /**
      * Erstellt ein neues Sodoku-Rätsel, welches gelöst werden muss.
@@ -25,57 +32,95 @@ public class Sudoku {
         if (fields.length > 0 && fields[0].length == fields.length && fields.length == size*size) {
             this.size = size;
 
-            lineGroups = new Group[size*size];
-            columnGroups = new Group[size*size];
-            boxGroups = new Group[size*size];
+            initGroups();
+            parseFields(fields);
 
-            for (int l = 0; l < fields.length; l++) {
-                int[] line = fields[l];
-
-                for (int c = 0; c < fields.length; c++) {
-                    int current = (line.length > c) ? line[c] : -1;
-
-                    Field field = null;
-                    // neues Feld erstellen -> wenn current > 0 und kleiner als max. ist, dann ist es fixed
-                    if (current > 0 && current <= fields.length) {
-                        field = new Field(fields.length, current);
-                    }
-                    else field = new Field(fields.length);
-
-                    field.setGroups(getGroups(l,c));
-
-                    fieldList.add(field);
-                }
-            }
         }
         else throw new IllegalArgumentException("Fields has to be a mxm matrix.");
 
-        /* nacheinander hinzufügen */
+        initAllPossibilities();
+        addAllToTree();
+
+        startSolving();
+    }
+
+    /**
+     * Erstellt die Gruppen, zu denen bestimmte Felder gehören.
+     */
+    private void initGroups() {
+        lineGroups = new Group[size*size];
+        columnGroups = new Group[size*size];
+        boxGroups = new Group[size*size];
+    }
+
+    /**
+     * Wandelt das Feldarray (ints) in Objekte um.
+     * @param fields Das Array der Werte der Felder.
+     */
+    private void parseFields(int[][] fields) {
+        for (int l = 0; l < fields.length; l++) {
+            int[] line = fields[l];
+
+            for (int c = 0; c < fields.length; c++) {
+                int current = (line.length > c) ? line[c] : -1;
+
+                Field field = null;
+                // neues Feld erstellen -> wenn current > 0 und kleiner als max. ist, dann ist es fixed
+                if (current > 0 && current <= fields.length) {
+                    field = new Field(fields.length, current);
+                }
+                else field = new Field(fields.length);
+
+                field.setGroups(getGroups(l,c));
+
+                fieldList.add(field);
+            }
+        }
+    }
+
+    /**
+     * Fügt alle Felder in den Baum ein.
+     */
+    private void addAllToTree() {
         for (Field field : fieldList) {
             treeSet.add(field);
         }
+    }
 
+    /**
+     * Setzt für jedes Feld die Möglichkeiten, die es besitz auf den aktuellen Stand.
+     */
+    private void initAllPossibilities() {
         for (Field field : fieldList) {
             field.updateOthers(true);
         }
-
-        listener = new UpdateListener<Field>() {
-            @Override
-            public void updated(Field element) {
-                solve(element);
-            }
-        };
-
-       // treeSet.addListener(listener);
-
-        solve(treeSet.first());
-
-
-        System.out.println("FERTIG (" +tries + " Versuche)");
-
     }
 
-    public String possibleString(Field field) {
+    /**
+     * Startet den Lösungsalgorithmus.
+     */
+    private void startSolving() {
+        Field current = treeSet.first();
+
+        startTime = System.currentTimeMillis();
+
+        while (current != null) {
+            current = saveSolve(current);
+        }
+
+        endTime = System.currentTimeMillis();
+
+        double diff = (double) (endTime - startTime) / 1000;
+
+        System.out.println("FERTIG (" +tries + " Versuche; " + diff + " secs)");
+    }
+
+    /**
+     * Erstellt einen formatierten Text, für die Möglichkeiten, die ein Feld hat.
+     * @param field Das Feld, dessen Möglichkeiten dargestellt werden sollen.
+     * @return Der generierte Text.
+     */
+    private String possibleString(Field field) {
         String str = "";
 
         for (int i = 0; i < field.getPossible().size(); i++) {
@@ -91,7 +136,10 @@ public class Sudoku {
     }
 
 
-    public void show() {
+    /**
+     * Gibt den aktuellen Stand in der Konsole aus.
+     */
+    public void showConsole() {
 
 
         for (int i = 0; i < 100; i++) {
@@ -128,7 +176,29 @@ public class Sudoku {
         }
     }
 
-    public void solve(Field field) throws IllegalStateException {
+    /**
+     * Startet eine sichere Rekursionsschleife zur Ermittlung der Lösung.
+     * @param field Das aktuelle Feld, ab dem die Rekursionsschleife startet.
+     * @return Das Startfeld, mit dem die nächste Rekursionsschleife beginnt.
+     */
+    private Field saveSolve(Field field) {
+        try {
+            return solve(field);
+        }
+        catch (IllegalStateException ex) {
+            System.out.print("\n\nWeg nicht erfolgreich!\t");
+
+            return fallBack();
+        }
+    }
+
+    /**
+     * Lösungsalgorithmus, welcher jedes Feld rekursiv löst.
+     * @param field Das aktuelle Feld
+     * @throws IllegalStateException Wird geworfen, falls das Feld keine Lösung besitzt. Wird durch Rekursion behandelt.
+     * @return Gibt an, bei welchem Feld es weitermachen soll.
+     */
+    private Field solve(Field field) throws IllegalStateException {
 
         /*
          *
@@ -188,8 +258,12 @@ public class Sudoku {
 
         //System.out.print("Möglichkeiten für Feld " + field.getID() + ": " + field.getPossible().size() + " \tLetzter Versuch: " + field.getLastTriedIndex() + "\n");
 
-        show();
+        showConsole();
         ++tries;
+
+        if (tries % 200 == 0) {
+            return field;
+        }
 
         if (field.getPossible().size() >= 1 && !field.isFixed()) {
             field.setFixedValue(field.getPossible().get(field.incrementLastTriedIndex()));
@@ -201,43 +275,47 @@ public class Sudoku {
                 lastMultipleFields.push(field);
 
             if (!treeSet.isEmpty()) {
-                try {
-                    solve(treeSet.first());
-                }
-                catch (IllegalStateException ex) {
-                    System.out.print("\n\nWeg nicht erfolgreich!\t");
-                    Field last = lastFields.pop();
-                    Field lastMultiple = lastMultipleFields.pop();
+                return saveSolve(treeSet.first());
 
-                    while (lastMultiple.getPossible().size() <= lastMultiple.getLastTriedIndex() + 1)
-                        lastMultiple = lastMultipleFields.pop();
-
-                    System.out.print("Ziel: " + lastMultiple.getID() + " (" + possibleString(lastMultiple) + ")" + "\tZurück:");
-
-                    while (!last.equals(lastMultiple)) {
-
-                        System.out.print(last.getID() + " -> ");
-
-                        last.resetValue(true);
-                        last = lastFields.pop();
-
-
-                       // System.err.println("FALSCH: " + last.getID() + ": \t" + last.getValue());
-                    }
-
-                    System.out.println(last.getID());
-
-                    last.resetValue(false);
-
-                    solve(last);
-
-                }
             }
 
 
         }
         else if (field.getPossible().size() <= 0)
             throw new IllegalStateException("Field #" + field.getID() + " has 0 possibilities.");
+
+        return null;
+    }
+
+    /**
+     * Geht den Entscheidungsweg bis zur nächsten Möglichkeit zurück.
+     * @return Das Feld, das als nächster Startpunkt für eine neue Rekursionsschleife verwendet wird.
+     */
+    private Field fallBack() {
+        Field last = lastFields.pop();
+        Field lastMultiple = lastMultipleFields.pop();
+
+        while (lastMultiple.getPossible().size() <= lastMultiple.getLastTriedIndex() + 1)
+            lastMultiple = lastMultipleFields.pop();
+
+        System.out.print("Ziel: " + lastMultiple.getID() + " (" + possibleString(lastMultiple) + ")" + "\tZurück:");
+
+        while (!last.equals(lastMultiple)) {
+
+            System.out.print(last.getID() + " -> ");
+
+            last.resetValue(true);
+            last = lastFields.pop();
+
+
+            // System.err.println("FALSCH: " + last.getID() + ": \t" + last.getValue());
+        }
+
+        System.out.println(last.getID());
+
+        last.resetValue(false);
+
+        return solve(last);
     }
 
     /**
