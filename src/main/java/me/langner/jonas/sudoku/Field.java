@@ -4,13 +4,19 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Ein Lösungsfeld eines Sudokus.
+ * @author Jonas Langner
+ * @version 1.0
+ * @since 1.0
+ */
 public class Field extends UpdateAble implements Comparable<Field> {
 
     private static int lastID = -1;
 
     private List<Integer> possibilities, notPossible;
     private boolean fixed = false;
-    private int value;
+    private int value, posX, posY;
     private int id = ++lastID;
     private Group[] groups;
     private int lastTriedIndex = -1;
@@ -30,8 +36,14 @@ public class Field extends UpdateAble implements Comparable<Field> {
         value = fixedInt;
     }
 
+    public void setPosition(int x, int y) {
+        posX = x;
+        posY = y;
+    }
+
     /**
      * Entfernt Einsatzmöglichkeiten und aktualisiert den Baum.
+     * @param bcFixed Gibt an, ob der aufrufende die Methode gewählt hat, weil die Werte schon fest vergeben sind.
      * @param ints Die zu entfernenden Einsatzmöglichkeiten.
      */
     public void removePossibility(boolean bcFixed, int ... ints) {
@@ -75,6 +87,10 @@ public class Field extends UpdateAble implements Comparable<Field> {
         updated();
     }
 
+    /**
+     * Informiert Nachbarn über aktuellen Wert.
+     * @param start Gibt an, ob diese Methode von der Initialisierung eines Sudokus aufgerufen wird.
+     */
     protected void updateOthers(boolean start) {
         if (groups == null)
             return;
@@ -112,6 +128,10 @@ public class Field extends UpdateAble implements Comparable<Field> {
         }
     }
 
+    /**
+     * Setzt einen festen Wert. Legt sich auf einen Wert fest.
+     * @param value Der Wert.
+     */
     public void setFixedValue(int value) {
         if (fixed)
             return;
@@ -131,6 +151,10 @@ public class Field extends UpdateAble implements Comparable<Field> {
 
     public void setValue(int value) {}
 
+    /**
+     * Setzt den Wert wieder zurück.
+     * @param resetTries Gibt an, ob es nur den Wert zurücksetzen soll oder auch den nächsten Wert, den es probiert.
+     */
     public void resetValue(boolean resetTries) {
 
         removeFromTree();
@@ -172,6 +196,11 @@ public class Field extends UpdateAble implements Comparable<Field> {
         return lastTriedIndex;
     }
 
+    /**
+     * Entscheidung, ob das Feld vor einem anderen abgearbeitet werden soll.
+     * @param o Das andere Feld.
+     * @return Die Priorität.
+     */
     public int compareTo(Field o) {
 
        /* System.out.print(getID() + " - " + o.getID() + ": ");
@@ -198,5 +227,13 @@ public class Field extends UpdateAble implements Comparable<Field> {
 
 
         return 0;
+    }
+
+    public int getPosX() {
+        return posX;
+    }
+
+    public int getPosY() {
+        return posY;
     }
 }

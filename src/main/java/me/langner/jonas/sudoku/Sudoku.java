@@ -47,7 +47,7 @@ public class Sudoku {
     /**
      * Erstellt die Gruppen, zu denen bestimmte Felder gehören.
      */
-    private void initGroups() {
+    private synchronized void initGroups() {
         lineGroups = new Group[size*size];
         columnGroups = new Group[size*size];
         boxGroups = new Group[size*size];
@@ -57,7 +57,7 @@ public class Sudoku {
      * Wandelt das Feldarray (ints) in Objekte um.
      * @param fields Das Array der Werte der Felder.
      */
-    private void parseFields(int[][] fields) {
+    private synchronized void parseFields(int[][] fields) {
         for (int l = 0; l < fields.length; l++) {
             int[] line = fields[l];
 
@@ -72,6 +72,7 @@ public class Sudoku {
                 else field = new Field(fields.length);
 
                 field.setGroups(getGroups(l,c));
+                field.setPosition(c,l);
 
                 fieldList.add(field);
             }
@@ -81,7 +82,7 @@ public class Sudoku {
     /**
      * Fügt alle Felder in den Baum ein.
      */
-    private void addAllToTree() {
+    private synchronized void addAllToTree() {
         for (Field field : fieldList) {
             treeSet.add(field);
         }
@@ -90,7 +91,7 @@ public class Sudoku {
     /**
      * Setzt für jedes Feld die Möglichkeiten, die es besitz auf den aktuellen Stand.
      */
-    private void initAllPossibilities() {
+    private synchronized void initAllPossibilities() {
         for (Field field : fieldList) {
             field.updateOthers(true);
         }
@@ -99,7 +100,7 @@ public class Sudoku {
     /**
      * Startet den Lösungsalgorithmus.
      */
-    private void startSolving() {
+    private synchronized void startSolving() {
         Field current = treeSet.first();
 
         startTime = System.currentTimeMillis();
@@ -120,7 +121,7 @@ public class Sudoku {
      * @param field Das Feld, dessen Möglichkeiten dargestellt werden sollen.
      * @return Der generierte Text.
      */
-    private String possibleString(Field field) {
+    private synchronized String possibleString(Field field) {
         String str = "";
 
         for (int i = 0; i < field.getPossible().size(); i++) {
@@ -181,7 +182,7 @@ public class Sudoku {
      * @param field Das aktuelle Feld, ab dem die Rekursionsschleife startet.
      * @return Das Startfeld, mit dem die nächste Rekursionsschleife beginnt.
      */
-    private Field saveSolve(Field field) {
+    private synchronized Field saveSolve(Field field) {
         try {
             return solve(field);
         }
@@ -198,7 +199,7 @@ public class Sudoku {
      * @throws IllegalStateException Wird geworfen, falls das Feld keine Lösung besitzt. Wird durch Rekursion behandelt.
      * @return Gibt an, bei welchem Feld es weitermachen soll.
      */
-    private Field solve(Field field) throws IllegalStateException {
+    private synchronized Field solve(Field field) throws IllegalStateException {
 
         /*
          *
@@ -291,7 +292,7 @@ public class Sudoku {
      * Geht den Entscheidungsweg bis zur nächsten Möglichkeit zurück.
      * @return Das Feld, das als nächster Startpunkt für eine neue Rekursionsschleife verwendet wird.
      */
-    private Field fallBack() {
+    private synchronized Field fallBack() {
         Field last = lastFields.pop();
         Field lastMultiple = lastMultipleFields.pop();
 
@@ -324,7 +325,7 @@ public class Sudoku {
      * @param column Die Spalte des Feldes.
      * @return Alle Gruppen, zu denen das Feld gehört.
      */
-    public Group[] getGroups(int line, int column) {
+    public synchronized Group[] getGroups(int line, int column) {
         Group[] groups = new Group[3];
 
         /* erstmal spalten und zeilengruppen setzen */
@@ -362,6 +363,24 @@ public class Sudoku {
         groups[2] = boxGroups[boxIndex];
 
         return groups;
+    }
+
+    /**
+     * Gibt den Weg zur Lösung aus (ohne zurückgehen).
+     * @return Der Lösungsweg.
+     */
+    public List<Field> getSolutionPath() {
+        List<Field> path = new LinkedList<>();
+
+        for (Field e : lastFields) {
+            path.add(e);
+        }
+
+        return path;
+    }
+
+    public int getTimeDifference() {
+        return (int) ((int) endTime - startTime);
     }
 
 }

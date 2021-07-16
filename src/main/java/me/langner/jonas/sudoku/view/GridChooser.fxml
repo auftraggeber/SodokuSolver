@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="me.langner.jonas.sudoku.view.GridChooserController">
+   <children>
+      <Label layoutX="168.0" layoutY="14.0" text="SudokuSolver">
+         <font>
+            <Font size="45.0" />
+         </font>
+      </Label>
+      <Label layoutX="213.0" layoutY="70.0" text="Wählen Sie die passende Größe" />
+      <Button layoutX="278.0" layoutY="104.0" mnemonicParsing="false" onAction="#handleSmallSudoku" text="3 x 3" />
+      <Button layoutX="278.0" layoutY="139.0" mnemonicParsing="false" onAction="#handleMediumSudoku" text="4 x 4" />
+      <Button layoutX="278.0" layoutY="174.0" mnemonicParsing="false" onAction="#handleLargeSudoku" text="5 x 5" />
+   </children>
+</AnchorPane>
