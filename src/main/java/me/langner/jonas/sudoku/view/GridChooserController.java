@@ -35,7 +35,14 @@ public class GridChooserController extends Controller {
 
     @FXML
     private void handleLargeSudoku() {
+        try {
+            Controller c = getSudokuApp().showSceneFromRessource("LargeSudoku.fxml", "5x5 Sudoku");
 
+            if (c != null && c instanceof SudokuController)
+                ((SudokuController) c).setSize(5);
+        } catch (IOException ioException) {
+            ioException.printStackTrace();
+        }
     }
 
 }

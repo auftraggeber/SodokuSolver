@@ -255,7 +255,6 @@ public class SudokuController extends Controller {
             long start = System.currentTimeMillis();
 
             while (isSolving()) {
-                System.out.println("HI");
                 long now = System.currentTimeMillis();
 
                 int diff = (int) ((int) now - start);
