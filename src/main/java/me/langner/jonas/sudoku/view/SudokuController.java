@@ -3,23 +3,26 @@ package me.langner.jonas.sudoku.view;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.GridPane;
 import me.langner.jonas.sudoku.Field;
 import me.langner.jonas.sudoku.Sudoku;
-import org.w3c.dom.Text;
 
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.*;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
-public class SmallSudokuController {
+public class SudokuController extends Controller {
 
-    private static final int SIZE = 3, MIN_INTERVAL = 200, MAX_INTERVAL = 3500;
+    private static final int MIN_INTERVAL = 200, MAX_INTERVAL = 3500;
+    private int size;
 
     @FXML
     private GridPane superGridPane;
@@ -38,6 +41,9 @@ public class SmallSudokuController {
     private List<Field> solutions;
     private Timer timer = new Timer();
 
+    public void setSize(int size) {
+        this.size = size;
+    }
 
     @FXML
     private void initialize(){
@@ -50,20 +56,20 @@ public class SmallSudokuController {
      * @return Die Eingabematrix.
      */
     private int[][] getGridInput() {
-        int[][] ints = new int[SIZE*SIZE][SIZE*SIZE];
+        int[][] ints = new int[size * size][size * size];
 
-        for (int i = 0; i < 9; i++) {
-            int rowIndex = i / 3;
-            int columnIndex = i % 3;
+        for (int i = 0; i < size * size; i++) {
+            int rowIndex = i / size;
+            int columnIndex = i % size;
             GridPane pane = (GridPane) superGridPane.getChildren().get(i);
 
-            for (int x = 0; x < SIZE; x++) {
+            for (int x = 0; x < size; x++) {
 
-                for (int y = 0; y < SIZE; y++) {
+                for (int y = 0; y < size; y++) {
                     int content = getTextFieldInput(pane,x,y);
 
                     /* füllen */
-                    ints[(rowIndex*3) + y][(columnIndex*3)+x] = content;
+                    ints[(rowIndex* size) + y][(columnIndex* size)+x] = content;
                 }
             }
         }
@@ -79,7 +85,7 @@ public class SmallSudokuController {
      * @return Inhalt des Feldes (oder -1 bei keinem Inhalt).
      */
     private int getTextFieldInput(GridPane pane, int locX, int locY) {
-        Node node = pane.getChildren().get(locX + (SIZE * locY));
+        Node node = pane.getChildren().get(locX + (size * locY));
 
         if (node != null && node instanceof TextArea) {
             TextArea area = (TextArea) node;
@@ -148,15 +154,15 @@ public class SmallSudokuController {
         int x = currentSolution.getPosX();
         int y = currentSolution.getPosY();
 
-        int gridX = x / SIZE;
-        int gridY = y / SIZE;
+        int gridX = x / size;
+        int gridY = y / size;
 
-        int textX = x % SIZE;
-        int textY = y % SIZE;
+        int textX = x % size;
+        int textY = y % size;
 
         try {
-            GridPane pane = (GridPane) superGridPane.getChildren().get(gridX + (gridY * 3));
-            TextArea area = (TextArea) pane.getChildren().get(textX + (textY * SIZE));
+            GridPane pane = (GridPane) superGridPane.getChildren().get(gridX + (gridY * size));
+            TextArea area = (TextArea) pane.getChildren().get(textX + (textY * size));
 
             area.setText(String.valueOf(currentSolution.getValue()));
 
@@ -230,7 +236,7 @@ public class SmallSudokuController {
 
         service.submit(() -> {
 
-            Sudoku s = new Sudoku(SIZE, getGridInput());
+            Sudoku s = new Sudoku(size, getGridInput());
 
             Platform.runLater(() -> {
                 setSolution(s);

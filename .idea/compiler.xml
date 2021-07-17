@@ -1,14 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <option name="BUILD_PROCESS_ADDITIONAL_VM_OPTIONS" value="-Xmx1024m" />
+    <wildcardResourcePatterns>
+      <entry name="!?*.java" />
+      <entry name="!?*.form" />
+      <entry name="!?*.class" />
+      <entry name="!?*.groovy" />
+      <entry name="!?*.scala" />
+      <entry name="!?*.flex" />
+      <entry name="!?*.kt" />
+      <entry name="!?*.clj" />
+    </wildcardResourcePatterns>
     <annotationProcessing>
       <profile name="Maven default annotation processors profile" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="Sudoku" />
+        <module name="SudokuUI" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="SudokuUI" target="11" />
+    </bytecodeTargetLevel>
   </component>
 </project>

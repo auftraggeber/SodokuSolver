@@ -14,6 +14,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SudokuApp extends Application {
 
@@ -48,24 +50,38 @@ public class SudokuApp extends Application {
         }
     }
 
-    public Scene getSceneFromRessource(String ressource) throws IOException {
+    public Map<Scene, Controller> getSceneFromRessource(String ressource) throws IOException {
         FXMLLoader loader = getLoader(ressource);
 
         Pane pane = loader.load();
+        Map<Scene, Controller> map = new HashMap<>();
+
+        Scene scene = new Scene(pane);
 
         if (loader.getController() != null && loader.getController() instanceof Controller) {
             ((Controller)loader.getController()).setSudokuApp(this);
-        }
+            map.put(scene, loader.getController());
+        }else if (loader.getController() != null)
+            map.put(scene, loader.getController());
+        else
+            map.put(scene, null);
 
-        return new Scene(pane);
+
+
+        return map;
     }
 
-    public void showSceneFromRessource(String ressource, String title) throws IOException {
-        Scene scene = getSceneFromRessource(ressource);
+    public Controller showSceneFromRessource(String ressource, String title) throws IOException {
+        Map<Scene, Controller> map = getSceneFromRessource(ressource);
+        Scene scene = map.keySet().stream().findFirst().get();
+        Controller c = map.get(scene);
 
         primaryStage.setTitle(title);
         primaryStage.setScene(scene);
         primaryStage.show();
+
+
+        return map.get(scene);
     }
     @Override
     public void start(Stage primaryStage) throws IOException {

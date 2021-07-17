@@ -17,6 +17,14 @@
                     <target>11</target>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.openjfx</groupId>
+                <artifactId>javafx-maven-plugin</artifactId>
+                <version>0.0.1</version>
+                <configuration>
+                    <mainClass>me.langner.jonas.sudoku.view.SudokuApp</mainClass>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
     <dependencies>
