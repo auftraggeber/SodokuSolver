@@ -157,7 +157,9 @@ public class Sudoku {
         int i = 0;
 
         for (Field f : fieldList) {
-            String value = (f.getValue() > 0) ? f.getValue() + " " : "  ";
+            String value = (f.getValue() > 0) ? f.getValue() + "" : " ";
+            if (value.length() <= 1)
+                value += " ";
 
             if (!lastFields.isEmpty() && lastFields.peek().getID() == f.getID())
                 System.out.print(">" + value + "<");
